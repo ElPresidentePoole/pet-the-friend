@@ -1,84 +1,53 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Initialize 3d camera free
-*
-*   Example originally created with raylib 1.3, last time updated with raylib 1.3
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2015-2023 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "raylib.h"
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
-int main(void)
-{
-    // Initialization
-    //--------------------------------------------------------------------------------------
+int main() {
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - 3d camera free");
+    InitWindow(screenWidth, screenHeight, "pet the friend!");
 
-    // Define the camera to look into our 3d world
-    Camera3D camera = { 0 };
-    camera.position = (Vector3){ 10.0f, 10.0f, 10.0f }; // Camera position
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 45.0f;                                // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+    int times_pet = 0;
+    Texture2D friend = LoadTexture("./friend.png");
+    const int friend_original_width = friend.width;
+    const int friend_original_height = friend.height;
+    const int friend_original_y = screenHeight/2 - friend.height/2;
 
-    Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
+    int friend_y = friend_original_y;
 
-    DisableCursor();                    // Limit cursor to relative movement inside the window
-
-    SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
+    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())        // Detect window close button or ESC key
+    while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         // Update
-        //----------------------------------------------------------------------------------
-        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
-
-        if (IsKeyDown('Z')) camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
-        //----------------------------------------------------------------------------------
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            times_pet++;
+            friend.width = friend_original_width * 1;
+            friend.height = friend_original_height * 0.6;
+            friend_y += 75;
+        }
+        if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+            friend.width = friend_original_width;
+            friend.height = friend_original_height;
+            friend_y = friend_original_y;
+        }
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+        ClearBackground(RAYWHITE);
 
-            BeginMode3D(camera);
+        DrawTexture(friend, screenWidth/2 - friend.width/2, friend_y, WHITE);
 
-                DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);
-                DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);
-
-                DrawGrid(10, 1.0f);
-
-            EndMode3D();
-
-            DrawRectangle( 10, 10, 320, 133, Fade(SKYBLUE, 0.5f));
-            DrawRectangleLines( 10, 10, 320, 133, BLUE);
-
-            DrawText("Free camera default controls:", 20, 20, 10, BLACK);
-            DrawText("- Mouse Wheel to Zoom in-out", 40, 40, 10, DARKGRAY);
-            DrawText("- Mouse Wheel Pressed to Pan", 40, 60, 10, DARKGRAY);
-            DrawText("- Alt + Mouse Wheel Pressed to Rotate", 40, 80, 10, DARKGRAY);
-            DrawText("- Alt + Ctrl + Mouse Wheel Pressed for Smooth Zoom", 40, 100, 10, DARKGRAY);
-            DrawText("- Z to zoom to (0, 0, 0)", 40, 120, 10, DARKGRAY);
+        DrawText(TextFormat("Times Pet: %d", times_pet), 0, 0, 20, BLACK);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
 
+    UnloadTexture(friend);
     // De-Initialization
     //--------------------------------------------------------------------------------------
     CloseWindow();        // Close window and OpenGL context
